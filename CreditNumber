@@ -1,0 +1,139 @@
+#include <cs50.h>
+#include <stdio.h>
+
+long get_creditCardNumber(void);
+int caracterCounter(long x);
+bool get_luhnAlgorithmTest(long creditCardNumber);
+bool CardID(long creditCardNumber);
+
+int main(void)
+{
+    long credit = get_creditCardNumber();
+    printf("Credit Card Number: %li\n", credit);
+
+    if (get_luhnAlgorithmTest(credit) && CardID(credit))
+    {
+    }
+    else
+    {
+        printf("INVALID\n");
+    }
+}
+
+long get_creditCardNumber(void)
+{
+    while (true)
+    {
+        long credit = get_long("Type the credit card Number: ");
+        int caractersOfCreditCard = caracterCounter(credit);
+
+        if (caractersOfCreditCard != 13 && caractersOfCreditCard != 15 &&
+            caractersOfCreditCard != 16)
+        {
+            printf("Invalid card Number\n");
+        }
+        else
+        {
+            return credit;
+        }
+    }
+}
+
+int caracterCounter(long x)
+{
+    int numberOfCaracters = 0;
+
+    if (x == 0)
+    {
+        return 1;
+    }
+
+    while (true)
+    {
+        x = x / 10;
+        numberOfCaracters++;
+        if (x < 1)
+        {
+            break;
+        }
+    }
+    return numberOfCaracters;
+}
+
+bool get_luhnAlgorithmTest(long creditCardNumber)
+{
+    int i = 0;
+    int sumOfFirstNumbers = 0;
+    int sumOfSecondNumbers = 0;
+
+    while (true)
+    {
+        int eachCaracter = creditCardNumber % 10;
+        if (i == 0)
+        {
+            sumOfFirstNumbers += eachCaracter;
+            i++;
+        }
+        else if (i == 1)
+        {
+            if ((eachCaracter * 2) > 9)
+            {
+                sumOfSecondNumbers += ((eachCaracter * 2) % 10);
+                eachCaracter = ((eachCaracter * 2) / 10) % 10;
+                sumOfSecondNumbers += eachCaracter;
+            }
+            else
+            {
+                sumOfSecondNumbers += (eachCaracter * 2);
+            }
+            i = 0;
+        }
+        creditCardNumber /= 10;
+        if (creditCardNumber < 1)
+        {
+            break;
+        }
+    }
+    int sum = sumOfSecondNumbers + sumOfFirstNumbers;
+    if (sum % 10 != 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+bool CardID(long creditCardNumber)
+{
+    long divisor = 1;
+
+    for (int i = 0; i < (caracterCounter(creditCardNumber) - 2); i++)
+    {
+        divisor *= 10;
+    }
+
+    long cardLastTwoDigits = creditCardNumber / divisor;
+
+    if (cardLastTwoDigits == 34 || cardLastTwoDigits == 37)
+    {
+        printf("AMEX\n");
+        return true;
+    }
+    else if (cardLastTwoDigits == 51 || cardLastTwoDigits == 52 || cardLastTwoDigits == 53 ||
+             cardLastTwoDigits == 54 || cardLastTwoDigits == 55)
+    {
+        printf("MASTERCARD\n");
+        return true;
+    }
+    else if (cardLastTwoDigits / 10 == 4)
+    {
+        printf("VISA\n");
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
